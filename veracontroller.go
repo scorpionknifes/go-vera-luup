@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -38,7 +38,7 @@ func (con *VeraController) GetSessionToken(identity IdentityJSON) error {
 }
 
 //GetSData Get SData from Hub through Relay Server aka all info
-func (con *VeraController) GetSData(identity IdentityJSON) error {
+func (con *VeraController) GetSData() error {
 	//Get Url
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID + conPortPath
 	//GET Request
@@ -47,18 +47,17 @@ func (con *VeraController) GetSData(identity IdentityJSON) error {
 		return err
 	}
 	//Set Required Headers
-	req.Header.Set("MMSSession", con.ServerRelay)
+	req.Header.Set("MMSSession", con.SessionToken)
 	r, err := client.Do(req)
 	if err != nil {
 		return err
 	}
+	//Decode SData and add to struct
+	sData := SData{}
+	err = json.NewDecoder(r.Body).Decode(&sData)
 	if err != nil {
 		return err
 	}
-	bodyBytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(string(bodyBytes))
+	con.SData = sData
 	return nil
 }

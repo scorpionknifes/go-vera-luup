@@ -21,6 +21,13 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
 		ServerRelay: deviceInfo.ServerRelay,
 	}
 	err = controller.GetSessionToken(vera.Identity)
+	if err != nil {
+		return VeraController{}, err
+	}
+	err = controller.GetSData()
+	if err != nil {
+		return VeraController{}, err
+	}
 	return controller, err
 }
 

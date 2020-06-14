@@ -22,5 +22,8 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(controller)
+	//Print out all device names
+	for _, device := range controller.SData.Devices {
+		log.Println(device.Name)
+	}
 }

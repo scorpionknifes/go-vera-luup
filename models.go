@@ -15,6 +15,7 @@ type VeraController struct {
 	DeviceID     string
 	ServerRelay  string
 	SessionToken string
+	SData        SData
 }
 
 // IdentityJSON parse GetLoginToken
@@ -81,4 +82,68 @@ type DeviceInfo struct {
 	DistributionBuild    string `json:"DistributionBuild"`
 	AccessPermissions    string `json:"AccessPermissions"`
 	LinuxFirmware        int    `json:"LinuxFirmware"`
+}
+
+//SData struct to store data
+type SData struct {
+	Full         int    `json:"full"`
+	Version      string `json:"version"`
+	Model        string `json:"model"`
+	ZwaveHeal    int    `json:"zwave_heal"`
+	Temperature  string `json:"temperature"`
+	Skin         string `json:"skin"`
+	SerialNumber string `json:"serial_number"`
+	Fwd1         string `json:"fwd1"`
+	Fwd2         string `json:"fwd2"`
+	Mode         int    `json:"mode"`
+	Sections     []struct {
+		Name string `json:"name"`
+		ID   int    `json:"id"`
+	} `json:"sections"`
+	Rooms []struct {
+		Name    string `json:"name"`
+		ID      int    `json:"id"`
+		Section int    `json:"section"`
+	} `json:"rooms"`
+	Scenes []struct {
+		Active int    `json:"active"`
+		Name   string `json:"name"`
+		ID     int    `json:"id"`
+		Room   int    `json:"room"`
+	} `json:"scenes"`
+	Devices     []SDataDevice   `json:"devices"`
+	Categories  []SDataCategory `json:"categories"`
+	Ir          int             `json:"ir"`
+	Irtx        string          `json:"irtx"`
+	Loadtime    int             `json:"loadtime"`
+	Dataversion int             `json:"dataversion"`
+	State       int             `json:"state"`
+	Comment     string          `json:"comment"`
+}
+
+//SDataDevice struct for devices in SData
+type SDataDevice struct {
+	Name         string `json:"name"`
+	Altid        string `json:"altid"`
+	ID           int    `json:"id"`
+	Category     int    `json:"category"`
+	Subcategory  int    `json:"subcategory"`
+	Room         int    `json:"room"`
+	Parent       int    `json:"parent"`
+	Configured   string `json:"configured"`
+	State        int    `json:"state,omitempty"`
+	Comment      string `json:"comment,omitempty"`
+	Status       string `json:"status,omitempty"`
+	Kwh          string `json:"kwh,omitempty"`
+	Watts        string `json:"watts,omitempty"`
+	Locked       string `json:"locked,omitempty"`
+	Pincodes     string `json:"pincodes,omitempty"`
+	CommFailure  string `json:"commFailure,omitempty"`
+	Batterylevel string `json:"batterylevel,omitempty"`
+}
+
+//SDataCategory struct for category in SData
+type SDataCategory struct {
+	Name string `json:"name"`
+	ID   int    `json:"id"`
 }
