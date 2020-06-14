@@ -18,5 +18,9 @@ func main() {
 	vera := New(os.Getenv("VERA_USERNAME"), os.Getenv("VERA_PASSWORD"))
 
 	//DeviceID = SN number on Vera controller
-	vera.GetDeviceInfo(os.Getenv("VERA_DEVICEID"))
+	deviceInfo, err := vera.GetDeviceInfo(os.Getenv("VERA_DEVICEID"))
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(deviceInfo)
 }

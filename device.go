@@ -1,9 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -12,7 +11,7 @@ const (
 )
 
 //GetDeviceInfo get device info of deviceID
-func (vera *Vera) GetDeviceInfo(deviceID string) error {
+func (vera *Vera) GetDeviceInfo(deviceID string) (DeviceInfo, error) {
 	var device Device
 	for _, d := range vera.Devices.Devices {
 		if deviceID == d.PKDevice {
@@ -20,24 +19,37 @@ func (vera *Vera) GetDeviceInfo(deviceID string) error {
 		}
 	}
 	if device == (Device{}) {
-		return errors.New("deviceID '" + deviceID + "' not found")
+		return DeviceInfo{}, errors.New("deviceID '" + deviceID + "' not found")
 	}
 	url := https + device.ServerDevice + devicePath + deviceID
-	log.Println(url)
+	deviceInfo, err := vera.GetDeviceInfoURL(url)
+
+	//Try using ServerDeviceAlt if ServerDevice doesn't work
+	if err != nil {
+		url = https + device.ServerDeviceAlt + devicePath + deviceID
+		deviceInfo, err = vera.GetDeviceInfoURL(url)
+	}
+	return deviceInfo, err
+}
+
+//GetDeviceInfoURL get device info using url
+func (vera *Vera) GetDeviceInfoURL(url string) (DeviceInfo, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return DeviceInfo{}, err
 	}
 	//Set Required Headers
 	req.Header.Set("MMSSession", vera.SessionToken)
 	r, err := client.Do(req)
 	if err != nil {
-		return err
+		return DeviceInfo{}, err
 	}
-	bodyBytes, err := ioutil.ReadAll(r.Body)
+	//Decode devices and add to Vera struct
+	deviceInfo := DeviceInfo{}
+	defer r.Body.Close()
+	err = json.NewDecoder(r.Body).Decode(&deviceInfo)
 	if err != nil {
-		return err
+		return DeviceInfo{}, err
 	}
-	log.Println(string(bodyBytes))
-	return nil
+	return deviceInfo, nil
 }

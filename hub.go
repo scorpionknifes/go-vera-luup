@@ -13,13 +13,13 @@ const (
 //GetAllDevices linked to account
 func (vera *Vera) GetAllDevices() error {
 	url := https + vera.Identity.ServerAccount + accountPath + vera.AccountID + devicesPath
-	err := vera.GetSessionTokenURL(url)
+	err := vera.GetAllDevicesURL(url)
 	if err == nil {
 		return nil
 	}
 	//if error occured try using ServerAccountAlt
 	url = https + vera.Identity.ServerAccountAlt + accountPath + vera.AccountID + devicesPath
-	return vera.GetSessionTokenURL(url)
+	return vera.GetAllDevicesURL(url)
 }
 
 //GetAllDevicesURL linked to account using URL
