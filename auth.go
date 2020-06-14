@@ -54,6 +54,17 @@ func (vera *Vera) GetIdentityToken() error {
 // GetSessionToken gets the session token using identity token
 func (vera *Vera) GetSessionToken() error {
 	url := https + vera.Identity.ServerAccount + sessionPath
+	err := vera.GetSessionTokenURL(url)
+	if err == nil {
+		return nil
+	}
+	//if error occured try using ServerAccountAlt
+	url = https + vera.Identity.ServerAccountAlt + sessionPath
+	return vera.GetSessionTokenURL(url)
+}
+
+// GetSessionTokenURL gets the session token using identity token and URL
+func (vera *Vera) GetSessionTokenURL(url string) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err

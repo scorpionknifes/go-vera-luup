@@ -8,6 +8,7 @@ type Vera struct {
 	Identity     IdentityJSON // NOTE Identity expires in 24 hrs
 	AccountID    string
 	SessionToken string
+	Devices      Devices
 }
 
 // IdentityJSON parse GetLoginToken

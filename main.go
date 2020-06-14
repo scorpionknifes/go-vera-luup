@@ -15,5 +15,8 @@ func main() {
 	}
 
 	//Example Create new object e.g vera = New(username, password)
-	New(os.Getenv("VERAUSERNAME"), os.Getenv("VERAPASSWORD"))
+	vera := New(os.Getenv("VERA_USERNAME"), os.Getenv("VERA_PASSWORD"))
+
+	//DeviceID = SN number on Vera controller
+	vera.GetDeviceInfo(os.Getenv("VERA_DEVICEID"))
 }
