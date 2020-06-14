@@ -10,6 +10,20 @@ const (
 	devicePath = "/device/device/device/"
 )
 
+//GetDeviceRelay get device relay
+func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
+	deviceInfo, err := vera.GetDeviceInfo(deviceID)
+	if err != nil {
+		return VeraController{}, err
+	}
+	controller := VeraController{
+		DeviceID:    deviceID,
+		ServerRelay: deviceInfo.ServerRelay,
+	}
+	err = controller.GetSessionToken(vera.Identity)
+	return controller, err
+}
+
 //GetDeviceInfo get device info of deviceID
 func (vera *Vera) GetDeviceInfo(deviceID string) (DeviceInfo, error) {
 	var device Device

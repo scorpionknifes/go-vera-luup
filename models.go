@@ -1,14 +1,20 @@
 package main
 
-// Vera struct hold info about one controller
+// Vera struct hold info about one user
 type Vera struct {
-	SerialNumber string
 	Username     string
 	Password     string
 	Identity     IdentityJSON // NOTE Identity expires in 24 hrs
 	AccountID    string
 	SessionToken string
 	Devices      Devices
+}
+
+// VeraController struct hold info about one controller
+type VeraController struct {
+	DeviceID     string
+	ServerRelay  string
+	SessionToken string
 }
 
 // IdentityJSON parse GetLoginToken
