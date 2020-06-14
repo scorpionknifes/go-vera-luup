@@ -8,15 +8,12 @@ import (
 )
 
 func main() {
+	//Load .env config - username and password
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
-	vera := Vera{
-		Username: os.Getenv("VERAUSERNAME"),
-		Password: os.Getenv("VERAPASSWORD"),
-	}
-
-	vera.GetLoginToken()
+	//Example Create new object e.g vera = New(username, password)
+	New(os.Getenv("VERAUSERNAME"), os.Getenv("VERAPASSWORD"))
 }

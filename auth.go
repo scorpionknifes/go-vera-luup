@@ -2,34 +2,76 @@ package main
 
 import (
 	"crypto/sha1"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"log"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
+
+	"github.com/buger/jsonparser"
 )
 
 const (
-	remoteURL    = "https://us-autha11.mios.com"
-	loginURL     = "/autha/auth/username/"
+	https        = "https://"
+	remoteURL    = "us-autha11.mios.com"
+	loginPath    = "/autha/auth/username/"
 	passwordSeed = "oZ7QE6LcLJp6fiWzdqZc"
+	sessionPath  = "/info/session/token"
 )
 
 var client = &http.Client{Timeout: 10 * time.Second}
 
-// GetLoginToken gets the login token from vera
-func (vera *Vera) GetLoginToken() error {
+// GetIdentityToken gets the identity token from vera using username+password
+func (vera *Vera) GetIdentityToken() error {
 	//Get Url
-	url := remoteURL + loginURL + vera.Username
+	url := https + remoteURL + loginPath + vera.Username
 	//Get Url Params
 	hashedpassword := hash(vera.Username + vera.Password + passwordSeed)
 	params := "?SHA1Password=" + hashedpassword + "&PK_Oem=1"
 	//GET Request
-	log.Println(url + params)
 	identity := IdentityJSON{}
 	err := getJSON(url+params, &identity)
+	if err != nil {
+		return err
+	}
 	vera.Identity = identity
+
+	//Get PK_Account aka AccountID by decode IdentityToken
+	raw, err := base64.StdEncoding.DecodeString(identity.Identity)
+	if err != nil {
+		return err
+	}
+	accountID, err := jsonparser.GetInt(raw, "PK_Account")
+	if err != nil {
+		return err
+	}
+	vera.AccountID = strconv.FormatInt(accountID, 10)
 	return err
+}
+
+// GetSessionToken gets the session token using identity token
+func (vera *Vera) GetSessionToken() error {
+	url := https + vera.Identity.ServerAccount + sessionPath
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+	//Set Required Headers
+	req.Header.Set("MMSAuth", vera.Identity.Identity)
+	req.Header.Set("MMSAuthSig", vera.Identity.IdentitySignature)
+	r, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	//Convert response into string as SessionToken
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	vera.SessionToken = string(bodyBytes)
+	return nil
 }
 
 //hash using sha1
