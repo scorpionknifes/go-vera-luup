@@ -16,6 +16,14 @@ type VeraController struct {
 	ServerRelay  string
 	SessionToken string
 	SData        SData
+	Switches     []Switch
+}
+
+//Switch devices with ON/OFF from vera controller
+type Switch struct {
+	ID     int    `json:"ID"`
+	Name   string `json:"Name"`
+	Status string `json:"Status"`
 }
 
 // IdentityJSON parse GetLoginToken
