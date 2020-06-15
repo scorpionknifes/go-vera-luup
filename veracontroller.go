@@ -14,6 +14,8 @@ const (
 	conRelayPath   = "/relay/relay/relay/device/"
 	conDataRequest = "/port_3480/data_request"
 	conSData       = "?id=sdata"
+	conDevice      = "?id=action&DeviceNum="
+	conSwitch      = "urn:upnp-org:serviceId:SwitchPower1"
 )
 
 //GetSessionToken get relay session by using identity
@@ -71,7 +73,7 @@ func (con *VeraController) GetSData() error {
 	switches := []Switch{}
 	for _, category := range sData.Categories {
 		if category.Name == "On/Off Switch" {
-			switchID = string(category.ID)
+			switchID = strconv.Itoa(category.ID)
 		}
 	}
 	if switchID == "" {
@@ -84,7 +86,7 @@ func (con *VeraController) GetSData() error {
 			switches = append(switches, switchDevice)
 		}
 	}
-	con.Switches = switches
+	con.Switches = &switches
 	return nil
 }
 
@@ -101,7 +103,8 @@ func (con *VeraController) Polling() {
 			default:
 				err := poll.CheckStatus()
 				if err != nil {
-					log.Panic(err)
+					log.Println(err)
+					time.Sleep(2 * time.Second)
 				}
 			}
 		}
@@ -130,10 +133,10 @@ func (poll *Polling) CheckStatus() error {
 	}
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	//Testing Polling data
-	log.Println(string(bodyBytes))
+	//log.Println(string(bodyBytes))
 	if string(bodyBytes) == "" {
 		time.Sleep(2 * time.Second)
 		return nil
@@ -149,16 +152,26 @@ func (poll *Polling) CheckStatus() error {
 		//Update all if data is full
 		con.SData = sData
 	} else {
+		//Send con.Updated chan a message when a switch has been updated
+		updated := false
 		//Update switch changes
 		for _, d := range sData.Devices {
-			for i, e := range con.Switches {
+			for i, e := range *con.Switches {
 				id, _ := strconv.Atoi(string(d.ID))
 				if id == e.ID {
-					e.Status = d.Status
-					con.Switches[i] = e
+					if e.Status != d.Status {
+						e.Status = d.Status
+						sw := *con.Switches
+						sw[i] = e
+						updated = true
+					}
 					break
 				}
 			}
+		}
+		if updated {
+			log.Println("updated")
+			con.Updated <- true
 		}
 	}
 
@@ -167,5 +180,27 @@ func (poll *Polling) CheckStatus() error {
 	poll.CurrentMinimumDelay = 2000
 	poll.LoadTime = sData.Loadtime
 	con.SData = sData
+	return nil
+}
+
+//Kill the polling
+func (poll *Polling) Kill() {
+	poll.VeraController.Kill <- true
+}
+
+//SwitchPowerStatus change swtich status
+func (poll *Polling) SwitchPowerStatus(id int, status int) error {
+	con := poll.VeraController
+	url := https + con.ServerRelay + conRelayPath + con.DeviceID
+	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conSwitch + "&action=SetTarget&newTargetValue="
+	r, err := client.Get(url + params)
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(string(bodyBytes))
+	if err != nil {
+		return err
+	}
 	return nil
 }

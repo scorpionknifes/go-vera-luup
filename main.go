@@ -27,5 +27,14 @@ func main() {
 		log.Println(device.Name)
 	}
 	controller.Polling()
-	select {}
+	for {
+		select {
+		case <-controller.Updated:
+			log.Println("Devices Updated")
+			//Print out all device names
+			for _, device := range *controller.Switches {
+				log.Println(device.Name + "status: " + device.Status)
+			}
+		}
+	}
 }

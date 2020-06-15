@@ -17,9 +17,10 @@ type VeraController struct {
 	DeviceID     string
 	ServerRelay  string
 	SessionToken string
-	SData        SData    // SData will not be polled unlike Switches
-	Switches     []Switch // Data here would be update to date
+	SData        SData     // SData will not be polled unlike Switches
+	Switches     *[]Switch // Data here would be update to date
 	Kill         chan bool
+	Updated      chan bool
 }
 
 //Polling struct to poll VeraController
