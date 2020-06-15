@@ -170,7 +170,6 @@ func (poll *Polling) CheckStatus() error {
 			}
 		}
 		if updated {
-			log.Println("updated")
 			con.Updated <- true
 		}
 	}
@@ -189,11 +188,20 @@ func (poll *Polling) Kill() {
 }
 
 //SwitchPowerStatus change swtich status
-func (poll *Polling) SwitchPowerStatus(id int, status int) error {
-	con := poll.VeraController
+func (con *VeraController) SwitchPowerStatus(id int, status int) error {
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
-	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conSwitch + "&action=SetTarget&newTargetValue="
-	r, err := client.Get(url + params)
+	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conSwitch + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
+	//GET Request
+	req, err := http.NewRequest("GET", url+params, nil)
+	if err != nil {
+		return err
+	}
+	//Set Required Headers
+	req.Header.Set("MMSSession", con.SessionToken)
+	r, err := client.Do(req)
+	if err != nil {
+		return err
+	}
 	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)

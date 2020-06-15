@@ -26,7 +26,16 @@ func main() {
 	for _, device := range controller.SData.Devices {
 		log.Println(device.Name)
 	}
+	//Enable Polling
 	controller.Polling()
+
+	//Kill Polling by
+	//controller.Kill <- true
+
+	//Change Switch ID: 5 to Status: 1 aka Turn on Switch 5
+	controller.SwitchPowerStatus(5, 1)
+
+	//Check Status using go channels
 	for {
 		select {
 		case <-controller.Updated:
