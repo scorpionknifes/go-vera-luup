@@ -70,11 +70,17 @@ func (con *VeraController) GetSData() error {
 	//log.Println(con.SessionToken)
 	con.SData = sData
 
+	//Assume DoorLock is a switch
+
+	doorLockID := ""
 	switchID := ""
 	switches := []Switch{}
+	locks := []Lock{}
 	for _, category := range sData.Categories {
 		if category.Name == "On/Off Switch" {
 			switchID = strconv.Itoa(category.ID)
+		} else if category.Name == "Doorlock" {
+			doorLockID = strconv.Itoa(category.ID)
 		}
 	}
 	if switchID == "" {
@@ -86,8 +92,14 @@ func (con *VeraController) GetSData() error {
 			switchDevice := Switch{Name: device.Name, ID: deviceID, Status: device.Status}
 			switches = append(switches, switchDevice)
 		}
+		if string(device.Category) == doorLockID {
+			deviceID, _ := strconv.Atoi(string(device.ID))
+			lock := Lock{Name: device.Name, ID: deviceID, Locked: device.Locked}
+			locks = append(locks, lock)
+		}
 	}
 	con.Switches = &switches
+	con.Locks = &locks
 	return nil
 }
 
@@ -155,8 +167,9 @@ func (poll *Polling) CheckStatus() error {
 	} else {
 		//Send con.Updated chan a message when a switch has been updated
 		updated := false
-		//Update switch changes
+		//Update device changes
 		for _, d := range sData.Devices {
+			//Update switch changes
 			for i, e := range *con.Switches {
 				id, _ := strconv.Atoi(string(d.ID))
 				if id == e.ID {
@@ -164,6 +177,19 @@ func (poll *Polling) CheckStatus() error {
 						e.Status = d.Status
 						sw := *con.Switches
 						sw[i] = e
+						updated = true
+					}
+					break
+				}
+			}
+			//Update lock changes
+			for i, e := range *con.Locks {
+				id, _ := strconv.Atoi(string(d.ID))
+				if id == e.ID {
+					if e.Locked != d.Locked {
+						e.Locked = d.Locked
+						lk := *con.Locks
+						lk[i] = e
 						updated = true
 					}
 					break

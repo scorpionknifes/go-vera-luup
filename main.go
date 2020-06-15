@@ -22,10 +22,6 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	//Print out all device names
-	for _, device := range controller.SData.Devices {
-		log.Println(device.Name)
-	}
 
 	//Close controller by
 	//controller.Close()
@@ -40,7 +36,11 @@ func main() {
 			log.Println("Devices Updated")
 			//Print out all device names
 			for _, device := range *controller.Switches {
-				log.Println(device.Name + "status: " + device.Status)
+				log.Println("Device: " + device.Name + " status: " + device.Status)
+			}
+
+			for _, lock := range *controller.Locks {
+				log.Println("Lock: " + lock.Name + " status: " + lock.Locked)
 			}
 		}
 	}

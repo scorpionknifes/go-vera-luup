@@ -19,6 +19,7 @@ type VeraController struct {
 	SessionToken string
 	SData        SData     // SData will not be polled unlike Switches
 	Switches     *[]Switch // Data here would be update to date
+	Locks        *[]Lock
 	Kill         chan bool
 	Updated      chan bool
 }
@@ -36,6 +37,13 @@ type Switch struct {
 	ID     int    `json:"ID"`
 	Name   string `json:"Name"`
 	Status string `json:"Status"`
+}
+
+//Lock devices with lock/unlock from vera controller
+type Lock struct {
+	ID     int    `json:"ID"`
+	Name   string `json:"Name"`
+	Locked string `json:"Locked"`
 }
 
 // IdentityJSON parse GetLoginToken
