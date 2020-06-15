@@ -30,6 +30,9 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
 	if err != nil {
 		return VeraController{}, err
 	}
+	//Enable Polling using go routine
+	controller.Polling()
+
 	return controller, err
 }
 

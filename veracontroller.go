@@ -16,6 +16,7 @@ const (
 	conSData       = "?id=sdata"
 	conDevice      = "?id=action&DeviceNum="
 	conSwitch      = "urn:upnp-org:serviceId:SwitchPower1"
+	conDoorLock    = "urn:micasaverde-com:serviceId:DoorLock1"
 )
 
 //GetSessionToken get relay session by using identity
@@ -182,31 +183,43 @@ func (poll *Polling) CheckStatus() error {
 	return nil
 }
 
-//Kill the polling
-func (poll *Polling) Kill() {
-	poll.VeraController.Kill <- true
+//Close controller
+func (con *VeraController) Close() {
+	con.Kill <- true
 }
 
 //SwitchPowerStatus change swtich status
 func (con *VeraController) SwitchPowerStatus(id int, status int) error {
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conSwitch + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
+	err := con.CallURL(url + params)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//DoorLockStatus change lock status
+func (con *VeraController) DoorLockStatus(id int, status int) error {
+	url := https + con.ServerRelay + conRelayPath + con.DeviceID
+	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conDoorLock + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
+	err := con.CallURL(url + params)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//CallURL using GET
+func (con *VeraController) CallURL(url string) error {
 	//GET Request
-	req, err := http.NewRequest("GET", url+params, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
 	}
 	//Set Required Headers
 	req.Header.Set("MMSSession", con.SessionToken)
-	r, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	bodyBytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(string(bodyBytes))
+	_, err = client.Do(req)
 	if err != nil {
 		return err
 	}
