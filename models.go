@@ -1,5 +1,7 @@
 package main
 
+import "encoding/json"
+
 // Vera struct hold info about one user
 type Vera struct {
 	Username     string
@@ -15,8 +17,17 @@ type VeraController struct {
 	DeviceID     string
 	ServerRelay  string
 	SessionToken string
-	SData        SData
-	Switches     []Switch
+	SData        SData    // SData will not be polled unlike Switches
+	Switches     []Switch // Data here would be update to date
+	Kill         chan bool
+}
+
+//Polling struct to poll VeraController
+type Polling struct {
+	LoadTime            int
+	DataVersion         int
+	CurrentMinimumDelay int
+	VeraController      *VeraController
 }
 
 //Switch devices with ON/OFF from vera controller
@@ -105,19 +116,21 @@ type SData struct {
 	Fwd2         string `json:"fwd2"`
 	Mode         int    `json:"mode"`
 	Sections     []struct {
-		Name string `json:"name"`
-		ID   int    `json:"id"`
+		Name string      `json:"name"`
+		ID   json.Number `json:"id"`
 	} `json:"sections"`
 	Rooms []struct {
-		Name    string `json:"name"`
-		ID      int    `json:"id"`
-		Section int    `json:"section"`
+		Name    string      `json:"name"`
+		ID      json.Number `json:"id"`
+		Section json.Number `json:"section"`
 	} `json:"rooms"`
 	Scenes []struct {
-		Active int    `json:"active"`
-		Name   string `json:"name"`
-		ID     int    `json:"id"`
-		Room   int    `json:"room"`
+		Name    string      `json:"name"`
+		ID      json.Number `json:"id"`
+		Room    json.Number `json:"room"`
+		Active  json.Number `json:"active"`
+		State   json.Number `json:"state"`
+		Comment string      `json:"comment"`
 	} `json:"scenes"`
 	Devices     []SDataDevice   `json:"devices"`
 	Categories  []SDataCategory `json:"categories"`
@@ -131,23 +144,23 @@ type SData struct {
 
 //SDataDevice struct for devices in SData
 type SDataDevice struct {
-	Name         string `json:"name"`
-	Altid        string `json:"altid"`
-	ID           int    `json:"id"`
-	Category     int    `json:"category"`
-	Subcategory  int    `json:"subcategory"`
-	Room         int    `json:"room"`
-	Parent       int    `json:"parent"`
-	Configured   string `json:"configured"`
-	State        int    `json:"state,omitempty"`
-	Comment      string `json:"comment,omitempty"`
-	Status       string `json:"status,omitempty"`
-	Kwh          string `json:"kwh,omitempty"`
-	Watts        string `json:"watts,omitempty"`
-	Locked       string `json:"locked,omitempty"`
-	Pincodes     string `json:"pincodes,omitempty"`
-	CommFailure  string `json:"commFailure,omitempty"`
-	Batterylevel string `json:"batterylevel,omitempty"`
+	Name         string      `json:"name"`
+	Altid        string      `json:"altid"`
+	ID           json.Number `json:"id"` //SData when polling returns string instead of int
+	Category     json.Number `json:"category"`
+	Subcategory  json.Number `json:"subcategory"`
+	Room         json.Number `json:"room"`
+	Parent       json.Number `json:"parent"`
+	Configured   string      `json:"configured"`
+	State        json.Number `json:"state"`
+	Comment      string      `json:"comment"`
+	Kwh          string      `json:"kwh,omitempty"`
+	Status       string      `json:"status"`
+	Watts        string      `json:"watts,omitempty"`
+	Pincodes     string      `json:"pincodes,omitempty"`
+	CommFailure  string      `json:"commFailure,omitempty"`
+	Batterylevel string      `json:"batterylevel,omitempty"`
+	Locked       string      `json:"locked,omitempty"`
 }
 
 //SDataCategory struct for category in SData

@@ -26,4 +26,6 @@ func main() {
 	for _, device := range controller.SData.Devices {
 		log.Println(device.Name)
 	}
+	controller.Polling()
+	select {}
 }
