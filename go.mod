@@ -1,4 +1,4 @@
-module go-vera-luup
+module github.com/scorpionknifes/go-vera-luup
 
 go 1.12
 
