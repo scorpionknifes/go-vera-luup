@@ -1,4 +1,4 @@
-package main
+package go-vera-luup
 
 import (
 	"crypto/sha1"
