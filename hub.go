@@ -1,4 +1,4 @@
-package go-vera-luup
+package govera
 
 import (
 	"encoding/json"
