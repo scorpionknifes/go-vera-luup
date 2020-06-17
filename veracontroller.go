@@ -3,7 +3,6 @@ package govera
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -107,7 +106,7 @@ func (con *VeraController) GetSData() error {
 func (con *VeraController) Polling() {
 	//Loop for polling
 	go func() {
-		log.Println("Polling")
+		//log.Println("Polling")
 		poll := Polling{0, 0, 0, con}
 		for {
 			select {
@@ -116,7 +115,6 @@ func (con *VeraController) Polling() {
 			default:
 				err := poll.CheckStatus()
 				if err != nil {
-					log.Println(err)
 					time.Sleep(2 * time.Second)
 				}
 			}
