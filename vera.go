@@ -24,13 +24,17 @@ func New(username string, password string) Vera {
 		log.Panic(err)
 	}
 
-	ticker := time.NewTicker(5 * time.Second)
+	//Loop 23 hrs to keep renewing Tokens
+	ticker := time.NewTicker(23 * time.Hour)
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				ticker = time.NewTicker(5 * time.Second)
-				log.Println("test")
+				ticker = time.NewTicker(23 * time.Hour)
+				err = vera.Renew()
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}()
@@ -50,5 +54,15 @@ func (vera *Vera) Renew() error {
 	if err != nil {
 		return err
 	}
+
+	//Renew all controllers
+	log.Println("Renewed")
+	for _, controller := range *vera.Controllers {
+		err = controller.GetSessionToken()
+		if err != nil {
+			vera.RemoveDevice(controller.DeviceID)
+		}
+	}
+
 	return nil
 }

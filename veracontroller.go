@@ -19,7 +19,8 @@ const (
 )
 
 //GetSessionToken get relay session by using identity
-func (con *VeraController) GetSessionToken(identity IdentityJSON) error {
+func (con *VeraController) GetSessionToken() error {
+	identity := con.Vera.Identity
 	//Get Url
 	url := https + con.ServerRelay + conSessionPath
 	//GET Request

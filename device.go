@@ -23,7 +23,7 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
 		Kill:        make(chan bool),
 		Updated:     make(chan bool),
 	}
-	err = controller.GetSessionToken(vera.Identity)
+	err = controller.GetSessionToken()
 	if err != nil {
 		return VeraController{}, err
 	}
