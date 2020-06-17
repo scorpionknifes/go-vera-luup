@@ -17,6 +17,7 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
 		return VeraController{}, err
 	}
 	controller := VeraController{
+		Vera:        vera,
 		DeviceID:    deviceID,
 		ServerRelay: deviceInfo.ServerRelay,
 		Kill:        make(chan bool),
@@ -32,6 +33,9 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
 	}
 	//Enable Polling using go routine
 	controller.Polling()
+
+	//Add controller to controller array in Vera
+	*vera.Controllers = append(*vera.Controllers, controller)
 
 	return controller, err
 }
@@ -78,4 +82,17 @@ func (vera *Vera) GetDeviceInfoURL(url string) (DeviceInfo, error) {
 		return DeviceInfo{}, err
 	}
 	return deviceInfo, nil
+}
+
+//RemoveDevice remove device from vera
+func (vera *Vera) RemoveDevice(deviceID string) error {
+	cons := *vera.Controllers
+	for i, device := range cons {
+		if device.DeviceID == deviceID {
+			cons[i] = cons[len(cons)-1]
+			*vera.Controllers = cons[:len(cons)-1]
+			return nil
+		}
+	}
+	return errors.New("DeviceID not found")
 }

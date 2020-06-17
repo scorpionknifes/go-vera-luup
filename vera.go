@@ -5,7 +5,11 @@ import "log"
 //New Create new Vera object
 func New(username string, password string) Vera {
 	//Initialise Object
-	vera := Vera{Username: username, Password: password}
+	vera := Vera{
+		Username:    username,
+		Password:    password,
+		Controllers: &[]VeraController{},
+	}
 
 	//Gets Identity using username and password
 	err := vera.GetIdentityToken()
@@ -24,4 +28,9 @@ func New(username string, password string) Vera {
 	}
 
 	return vera
+}
+
+//Renew Used to renew identity
+func (vera *Vera) Renew() {
+
 }

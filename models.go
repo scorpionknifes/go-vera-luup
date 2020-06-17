@@ -10,10 +10,12 @@ type Vera struct {
 	AccountID    string
 	SessionToken string
 	Devices      Devices
+	Controllers  *[]VeraController // Add link so we can renew Identity
 }
 
 // VeraController struct hold info about one controller
 type VeraController struct {
+	Vera         *Vera
 	DeviceID     string
 	ServerRelay  string
 	SessionToken string
