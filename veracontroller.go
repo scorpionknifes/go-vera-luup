@@ -210,6 +210,8 @@ func (poll *Polling) CheckStatus() error {
 //Close controller
 func (con *VeraController) Close() {
 	con.Kill <- true
+	//delete controller from vera
+	con.Vera.RemoveDevice(con.DeviceID)
 }
 
 //SwitchPowerStatus change swtich status
