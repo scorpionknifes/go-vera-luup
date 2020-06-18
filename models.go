@@ -1,4 +1,4 @@
-package govera
+package vera
 
 import "encoding/json"
 
@@ -10,11 +10,11 @@ type Vera struct {
 	AccountID    string
 	SessionToken string
 	Devices      Devices
-	Controllers  *[]VeraController // Add link so we can renew Identity
+	Controllers  *[]Controller // Add link so we can renew Identity
 }
 
-// VeraController struct hold info about one controller
-type VeraController struct {
+// Controller struct hold info about one controller
+type Controller struct {
 	Vera         *Vera
 	DeviceID     string
 	ServerRelay  string
@@ -26,12 +26,12 @@ type VeraController struct {
 	Updated      chan bool
 }
 
-//Polling struct to poll VeraController
+//Polling struct to poll Controller
 type Polling struct {
 	LoadTime            int
 	DataVersion         int
 	CurrentMinimumDelay int
-	VeraController      *VeraController
+	Controller          *Controller
 }
 
 //Switch devices with ON/OFF from vera controller

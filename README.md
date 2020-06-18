@@ -10,7 +10,7 @@ Use Golang to remotely login and make Luup calls to a Vera™ home controller UI
 ## How to use
 - examples shown in main.go
 - config variables in .env
-- use ```VeraController``` and ```Vera``` struct
+- use ```Controller``` and ```Vera``` struct
 
 ## Luup Information 
 * [Luup Introduction](http://wiki.micasaverde.com/index.php/Luup_Intro)

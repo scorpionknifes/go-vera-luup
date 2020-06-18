@@ -1,4 +1,4 @@
-package govera
+package vera
 
 import (
 	"crypto/sha1"
@@ -8,22 +8,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/buger/jsonparser"
 )
 
-const (
-	https        = "https://"
-	remoteURL    = "us-autha11.mios.com"
-	loginPath    = "/autha/auth/username/"
-	passwordSeed = "oZ7QE6LcLJp6fiWzdqZc"
-	sessionPath  = "/info/session/token"
-)
-
-var client = &http.Client{Timeout: 10 * time.Second}
-
-// GetIdentityToken gets the identity token from vera using username+password
+// GetIdentityToken gets the identity token from vera using username and password
 func (vera *Vera) GetIdentityToken() error {
 	//Get Url
 	url := https + remoteURL + loginPath + vera.Username

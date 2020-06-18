@@ -1,4 +1,4 @@
-package govera
+package vera
 
 import (
 	"encoding/json"
@@ -8,18 +8,8 @@ import (
 	"time"
 )
 
-const (
-	conSessionPath = "/info/session/token"
-	conRelayPath   = "/relay/relay/relay/device/"
-	conDataRequest = "/port_3480/data_request"
-	conSData       = "?id=sdata"
-	conDevice      = "?id=action&DeviceNum="
-	conSwitch      = "urn:upnp-org:serviceId:SwitchPower1"
-	conDoorLock    = "urn:micasaverde-com:serviceId:DoorLock1"
-)
-
 //GetSessionToken get relay session by using identity
-func (con *VeraController) GetSessionToken() error {
+func (con *Controller) GetSessionToken() error {
 	identity := con.Vera.Identity
 	//Get Url
 	url := https + con.ServerRelay + conSessionPath
@@ -45,7 +35,7 @@ func (con *VeraController) GetSessionToken() error {
 }
 
 //GetSData Get SData from Hub through Relay Server aka all info
-func (con *VeraController) GetSData() error {
+func (con *Controller) GetSData() error {
 	//Get Url
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID + conDataRequest + conSData
 	//GET Request
@@ -104,7 +94,7 @@ func (con *VeraController) GetSData() error {
 }
 
 //Polling loop to CheckStatus using http://wiki.micasaverde.com/index.php/UI_Simple#lu_sdata:_The_polling_loop
-func (con *VeraController) Polling() {
+func (con *Controller) Polling() {
 	//Loop for polling
 	go func() {
 		//log.Println("Polling")
@@ -123,12 +113,9 @@ func (con *VeraController) Polling() {
 	}()
 }
 
-//pollClient http client without timeout for polling
-var pollClient = &http.Client{}
-
 //CheckStatus used to recheck switch status
 func (poll *Polling) CheckStatus() error {
-	con := poll.VeraController
+	con := poll.Controller
 	//Get Url
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params := conDataRequest + conSData + "&loadtime=" + strconv.Itoa(poll.LoadTime) + "&dataversion=" + strconv.Itoa(poll.DataVersion) + "&timeout=60" + "&minimumdelay=60"
@@ -209,14 +196,14 @@ func (poll *Polling) CheckStatus() error {
 }
 
 //Close controller
-func (con *VeraController) Close() {
+func (con *Controller) Close() {
 	con.Kill <- true
 	//delete controller from vera
 	con.Vera.RemoveDevice(con.DeviceID)
 }
 
 //SwitchPowerStatus change swtich status
-func (con *VeraController) SwitchPowerStatus(id int, status int) error {
+func (con *Controller) SwitchPowerStatus(id int, status int) error {
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conSwitch + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
 	err := con.CallURL(url + params)
@@ -227,7 +214,7 @@ func (con *VeraController) SwitchPowerStatus(id int, status int) error {
 }
 
 //DoorLockStatus change lock status
-func (con *VeraController) DoorLockStatus(id int, status int) error {
+func (con *Controller) DoorLockStatus(id int, status int) error {
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conDoorLock + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
 	err := con.CallURL(url + params)
@@ -238,7 +225,7 @@ func (con *VeraController) DoorLockStatus(id int, status int) error {
 }
 
 //CallURL using GET
-func (con *VeraController) CallURL(url string) error {
+func (con *Controller) CallURL(url string) error {
 	//GET Request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

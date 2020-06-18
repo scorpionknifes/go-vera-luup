@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
-	govera "github.com/scorpionknifes/go-vera-luup"
+	vera "github.com/scorpionknifes/go-vera-luup"
 )
 
 func main() {
@@ -17,22 +17,23 @@ func main() {
 	}
 
 	//Example Create new object e.g vera = New(username, password)
-	vera := govera.New(os.Getenv("VERA_USERNAME"), os.Getenv("VERA_PASSWORD"))
+	user := vera.New(os.Getenv("VERA_USERNAME"), os.Getenv("VERA_PASSWORD"))
 
 	//DeviceID = SN number on Vera controller
-	controller, err := vera.GetDeviceRelay(os.Getenv("VERA_DEVICEID"))
+	controller, err := user.GetDeviceRelay(os.Getenv("VERA_DEVICEID"))
 	if err != nil {
 		log.Println(err)
 	}
 
 	//Close controller by
-	//controller.Close()
+	controller.Close()
 
 	//Change Switch ID: 5 to Status: 1 aka Turn on Switch 5
-	//controller.SwitchPowerStatus(5, 1)
+	controller.SwitchPowerStatus(5, 1)
 
 	//Lock door
-	//controller.DoorLockStatus(LockID, 1) // 1 = lock, 0 = unlock
+	lockID, _ := strconv.Atoi(os.Getenv("VERA_LOCKID"))
+	controller.DoorLockStatus(lockID, 1) // 1 = lock, 0 = unlock
 
 	//Check Status using go channels
 	for {

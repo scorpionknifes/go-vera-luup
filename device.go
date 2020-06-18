@@ -1,4 +1,4 @@
-package govera
+package vera
 
 import (
 	"encoding/json"
@@ -6,17 +6,47 @@ import (
 	"net/http"
 )
 
-const (
-	devicePath = "/device/device/device/"
-)
+//GetAllDevices linked to account
+func (vera *Vera) GetAllDevices() error {
+	url := https + vera.Identity.ServerAccount + accountPath + vera.AccountID + devicesPath
+	err := vera.getAllDevicesURL(url)
+	if err == nil {
+		return nil
+	}
+	//if error occured try using ServerAccountAlt
+	url = https + vera.Identity.ServerAccountAlt + accountPath + vera.AccountID + devicesPath
+	return vera.getAllDevicesURL(url)
+}
+
+func (vera *Vera) getAllDevicesURL(url string) error {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+	//Set Required Headers
+	req.Header.Set("MMSSession", vera.SessionToken)
+	r, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	//Decode devices and add to Vera struct
+	devices := Devices{}
+	defer r.Body.Close()
+	err = json.NewDecoder(r.Body).Decode(&devices)
+	if err != nil {
+		return err
+	}
+	vera.Devices = devices
+	return nil
+}
 
 //GetDeviceRelay get device relay
-func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
+func (vera *Vera) GetDeviceRelay(deviceID string) (Controller, error) {
 	deviceInfo, err := vera.GetDeviceInfo(deviceID)
 	if err != nil {
-		return VeraController{}, err
+		return Controller{}, err
 	}
-	controller := VeraController{
+	controller := Controller{
 		Vera:        vera,
 		DeviceID:    deviceID,
 		ServerRelay: deviceInfo.ServerRelay,
@@ -25,11 +55,11 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (VeraController, error) {
 	}
 	err = controller.GetSessionToken()
 	if err != nil {
-		return VeraController{}, err
+		return Controller{}, err
 	}
 	err = controller.GetSData()
 	if err != nil {
-		return VeraController{}, err
+		return Controller{}, err
 	}
 	//Enable Polling using go routine
 	controller.Polling()
@@ -52,18 +82,17 @@ func (vera *Vera) GetDeviceInfo(deviceID string) (DeviceInfo, error) {
 		return DeviceInfo{}, errors.New("deviceID '" + deviceID + "' not found")
 	}
 	url := https + device.ServerDevice + devicePath + deviceID
-	deviceInfo, err := vera.GetDeviceInfoURL(url)
+	deviceInfo, err := vera.getDeviceInfoURL(url)
 
 	//Try using ServerDeviceAlt if ServerDevice doesn't work
 	if err != nil {
 		url = https + device.ServerDeviceAlt + devicePath + deviceID
-		deviceInfo, err = vera.GetDeviceInfoURL(url)
+		deviceInfo, err = vera.getDeviceInfoURL(url)
 	}
 	return deviceInfo, err
 }
 
-//GetDeviceInfoURL get device info using url
-func (vera *Vera) GetDeviceInfoURL(url string) (DeviceInfo, error) {
+func (vera *Vera) getDeviceInfoURL(url string) (DeviceInfo, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return DeviceInfo{}, err
@@ -84,7 +113,8 @@ func (vera *Vera) GetDeviceInfoURL(url string) (DeviceInfo, error) {
 	return deviceInfo, nil
 }
 
-//RemoveDevice remove device from vera
+// RemoveDevice remove controller device from Vera account
+// Also removes device from auto renew list
 func (vera *Vera) RemoveDevice(deviceID string) error {
 	cons := *vera.Controllers
 	for i, device := range cons {
