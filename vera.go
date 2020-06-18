@@ -1,7 +1,7 @@
-//Package vera to remotely accesss Vera™ home controller UI7 and call Luup
-//For more info about Luup http://wiki.micasaverde.com/index.php/Luup_Requests
+// Package vera to remotely accesss Vera™ home controller UI7 and call Luup
+// For more info about Luup http://wiki.micasaverde.com/index.php/Luup_Requests
 //
-//Example
+// Example
 //
 //	//Example Create new object e.g vera = New(username, password)
 //	user := vera.New("username", "password")
@@ -46,10 +46,15 @@ import (
 )
 
 const (
-	https          = "https://"
-	remoteURL      = "us-autha11.mios.com"
+	// https url
+	https = "https://"
+
+	// remote url mios
+	remoteURL    = "us-autha11.mios.com"
+	passwordSeed = "oZ7QE6LcLJp6fiWzdqZc"
+
+	// url paths
 	loginPath      = "/autha/auth/username/"
-	passwordSeed   = "oZ7QE6LcLJp6fiWzdqZc"
 	sessionPath    = "/info/session/token"
 	devicePath     = "/device/device/device/"
 	accountPath    = "/account/account/account/"
@@ -57,21 +62,29 @@ const (
 	conSessionPath = "/info/session/token"
 	conRelayPath   = "/relay/relay/relay/device/"
 	conDataRequest = "/port_3480/data_request"
-	conSData       = "?id=sdata"
-	conDevice      = "?id=action&DeviceNum="
-	conSwitch      = "urn:upnp-org:serviceId:SwitchPower1"
-	conDoorLock    = "urn:micasaverde-com:serviceId:DoorLock1"
+
+	// url params
+	conSData  = "?id=sdata"
+	conDevice = "?id=action&DeviceNum="
+
+	// serviceId
+	conSwitch   = "urn:upnp-org:serviceId:SwitchPower1"
+	conDoorLock = "urn:micasaverde-com:serviceId:DoorLock1"
 )
 
 var (
+	// client with 10 sec timeout
 	client = &http.Client{Timeout: 10 * time.Second}
-	//pollClient http client without timeout for polling
+
+	// pollClient http client without timeout for polling
+	// timeout is disable for polling using luup
 	pollClient = &http.Client{}
 )
 
-//New Create new Vera object
+// New Create new Vera object that identify using username & password
+// Login using Vera™ home controller UI7 account
 func New(username string, password string) Vera {
-	//Initialise Object
+	// Initialise Vera Class Object
 	vera := Vera{
 		Username:    username,
 		Password:    password,
@@ -82,13 +95,14 @@ func New(username string, password string) Vera {
 	if err != nil {
 		log.Panic(err)
 	}
-	//Gets all devices linked to account using SessionToken
+	// Gets all devices linked to account using SessionToken
 	err = vera.GetAllDevices()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	//Loop 23 hrs to keep renewing Tokens
+	// Identity expires in 24 hr after login
+	// Loop 23 hrs to keep renewing Tokens
 	ticker := time.NewTicker(23 * time.Hour)
 	go func() {
 		for {
@@ -106,25 +120,27 @@ func New(username string, password string) Vera {
 	return vera
 }
 
-//Renew Used to renew identity of Vera struct
+// Renew Used to renew identity of Vera struct
+// Call this Renew() to manually renew Vera Identity
 func (vera *Vera) Renew() error {
-	//Renew Identity using username and password
+	// Renew Identity using username and password
 	err := vera.GetIdentityToken()
 	if err != nil {
 		return err
 	}
-	//Renew SessionToken using Identity
+	// Renew SessionToken using Identity
 	err = vera.GetSessionToken()
 	if err != nil {
 		return err
 	}
 
-	//Renew all controllers
+	// Renew all controllers
 	log.Println("Renewed")
 	for _, controller := range *vera.Controllers {
 		err = controller.GetSessionToken()
+		// Remove controller if error occured when renewing
 		if err != nil {
-			vera.RemoveDevice(controller.DeviceID)
+			vera.removeDevice(controller.DeviceID)
 		}
 	}
 

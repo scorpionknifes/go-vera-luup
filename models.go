@@ -2,7 +2,7 @@ package vera
 
 import "encoding/json"
 
-// Vera struct hold info about one user
+// Vera class struct hold info about one user
 type Vera struct {
 	Username     string
 	Password     string
@@ -13,7 +13,7 @@ type Vera struct {
 	Controllers  *[]Controller // Add link so we can renew Identity
 }
 
-// Controller struct hold info about one controller
+// Controller class struct hold info about one controller
 type Controller struct {
 	Vera         *Vera
 	DeviceID     string

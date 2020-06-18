@@ -113,9 +113,9 @@ func (vera *Vera) getDeviceInfoURL(url string) (DeviceInfo, error) {
 	return deviceInfo, nil
 }
 
-// RemoveDevice remove controller device from Vera account
+// removeDevice remove controller device from Vera account
 // Also removes device from auto renew list
-func (vera *Vera) RemoveDevice(deviceID string) error {
+func (vera *Vera) removeDevice(deviceID string) error {
 	cons := *vera.Controllers
 	for i, device := range cons {
 		if device.DeviceID == deviceID {
