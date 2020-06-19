@@ -1,6 +1,9 @@
 package vera
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"sync"
+)
 
 // Vera class struct hold info about one user
 // Vera object has reference to all Controller childs it creates
@@ -12,6 +15,7 @@ type Vera struct {
 	SessionToken string
 	Devices      Devices
 	Controllers  *[]Controller // Add link so we can renew Identity
+	m            *sync.Mutex
 }
 
 // Controller class struct hold info about one controller
@@ -26,6 +30,7 @@ type Controller struct {
 	Locks        *[]Lock
 	Kill         chan bool
 	Updated      chan bool
+	m            *sync.Mutex
 }
 
 // Polling struct to poll Controller

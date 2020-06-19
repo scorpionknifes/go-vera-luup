@@ -42,6 +42,7 @@ package vera
 import (
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -89,6 +90,7 @@ func New(username string, password string) Vera {
 		Username:    username,
 		Password:    password,
 		Controllers: &[]Controller{},
+		m:           &sync.Mutex{},
 	}
 	// Setup Identity, SessionToken
 	err := vera.Renew()
@@ -123,6 +125,7 @@ func New(username string, password string) Vera {
 // Renew Used to renew identity of Vera struct
 // Call this Renew() to manually renew Vera Identity
 func (vera *Vera) Renew() error {
+	vera.m.Lock()
 	// Renew Identity using username and password
 	err := vera.GetIdentityToken()
 	if err != nil {
@@ -143,6 +146,7 @@ func (vera *Vera) Renew() error {
 			vera.removeDevice(controller.DeviceID)
 		}
 	}
+	vera.m.Unlock()
 
 	return nil
 }

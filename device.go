@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"sync"
 )
 
 // GetAllDevices linked to account
 // Get new list of devices linked to vera account
 // This should be used after adding new devices tp a live deployment
 func (vera *Vera) GetAllDevices() error {
+	vera.m.Lock()
 	url := https + vera.Identity.ServerAccount + accountPath + vera.AccountID + devicesPath
 	err := vera.getAllDevicesURL(url)
 	if err == nil {
@@ -17,6 +19,7 @@ func (vera *Vera) GetAllDevices() error {
 	}
 	// if error occured try using ServerAccountAlt
 	url = https + vera.Identity.ServerAccountAlt + accountPath + vera.AccountID + devicesPath
+	defer vera.m.Unlock()
 	return vera.getAllDevicesURL(url)
 }
 
@@ -46,6 +49,7 @@ func (vera *Vera) getAllDevicesURL(url string) error {
 // Each new Vera controller would require a new Object and SessionToken to interact
 // Each SessionToken also expires in 24 hrs the Object would auto renew with Vera Identity
 func (vera *Vera) GetDeviceRelay(deviceID string) (Controller, error) {
+	vera.m.Lock()
 	deviceInfo, err := vera.getDeviceInfo(deviceID)
 	if err != nil {
 		return Controller{}, err
@@ -56,6 +60,7 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (Controller, error) {
 		ServerRelay: deviceInfo.ServerRelay,
 		Kill:        make(chan bool),
 		Updated:     make(chan bool),
+		m:           &sync.Mutex{},
 	}
 	err = controller.GetSessionToken()
 	if err != nil {
@@ -70,7 +75,7 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (Controller, error) {
 
 	// Add controller to controller array in Vera
 	*vera.Controllers = append(*vera.Controllers, controller)
-
+	vera.m.Unlock()
 	return controller, err
 }
 

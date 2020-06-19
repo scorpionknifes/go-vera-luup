@@ -200,16 +200,20 @@ func (poll *Polling) checkStatus() error {
 
 // Close Removes controller from Vera and kills polling
 func (con *Controller) Close() {
+	con.m.Lock()
 	con.Kill <- true
 	// delete controller from vera identity
 	con.Vera.removeDevice(con.DeviceID)
+	con.m.Unlock()
 }
 
 // SwitchPowerStatus change swtich status
 func (con *Controller) SwitchPowerStatus(id int, status int) error {
+	con.m.Lock()
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conSwitch + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
 	err := con.callURL(url + params)
+	defer con.m.Unlock()
 	if err != nil {
 		return err
 	}
@@ -218,9 +222,11 @@ func (con *Controller) SwitchPowerStatus(id int, status int) error {
 
 // DoorLockStatus change lock status
 func (con *Controller) DoorLockStatus(id int, status int) error {
+	con.m.Lock()
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params := conDataRequest + conDevice + strconv.Itoa(id) + "&serviceId=" + conDoorLock + "&action=SetTarget&newTargetValue=" + strconv.Itoa(status)
 	err := con.callURL(url + params)
+	defer con.m.Unlock()
 	if err != nil {
 		return err
 	}
@@ -232,9 +238,11 @@ func (con *Controller) DoorLockStatus(id int, status int) error {
 // params after /port_3480/data_request? + "params"
 // This function will not return GET data
 func (con *Controller) CustomRequest(params string) error {
+	con.m.Lock()
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params = conDataRequest + "?" + params
 	err := con.callURL(url + params)
+	defer con.m.Unlock()
 	if err != nil {
 		return err
 	}
@@ -246,9 +254,11 @@ func (con *Controller) CustomRequest(params string) error {
 // params after /port_3480/data_request? + "params"
 // This function will return back struct
 func (con *Controller) CustomRequestReturn(params string, data interface{}) (interface{}, error) {
+	con.m.Lock()
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
 	params = conDataRequest + "?" + params
 	data, err := con.callURLReturn(url+params, data)
+	defer con.m.Unlock()
 	if err != nil {
 		return data, err
 	}
