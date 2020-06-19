@@ -147,6 +147,5 @@ func (vera *Vera) Renew() error {
 		}
 	}
 	vera.m.Unlock()
-
 	return nil
 }

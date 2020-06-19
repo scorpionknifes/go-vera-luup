@@ -12,6 +12,7 @@ import (
 // This should be used after adding new devices tp a live deployment
 func (vera *Vera) GetAllDevices() error {
 	vera.m.Lock()
+	defer vera.m.Unlock()
 	url := https + vera.Identity.ServerAccount + accountPath + vera.AccountID + devicesPath
 	err := vera.getAllDevicesURL(url)
 	if err == nil {
@@ -19,7 +20,6 @@ func (vera *Vera) GetAllDevices() error {
 	}
 	// if error occured try using ServerAccountAlt
 	url = https + vera.Identity.ServerAccountAlt + accountPath + vera.AccountID + devicesPath
-	defer vera.m.Unlock()
 	return vera.getAllDevicesURL(url)
 }
 
