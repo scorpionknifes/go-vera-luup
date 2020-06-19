@@ -150,6 +150,7 @@ func (poll *Polling) checkStatus() error {
 		return err
 	}
 
+	poll.Controller.m.Lock()
 	if sData.Full == 1 {
 		// Update all if data is full
 		con.SData = sData
@@ -188,6 +189,7 @@ func (poll *Polling) checkStatus() error {
 		if updated {
 			con.Updated <- true
 		}
+
 	}
 
 	// Update polling params read http://wiki.micasaverde.com/index.php/UI_Simple#lu_sdata:_The_polling_loop
@@ -195,6 +197,7 @@ func (poll *Polling) checkStatus() error {
 	poll.CurrentMinimumDelay = 2000
 	poll.LoadTime = sData.Loadtime
 	con.SData = sData
+	poll.Controller.m.Unlock()
 	return nil
 }
 
