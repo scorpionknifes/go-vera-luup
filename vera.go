@@ -140,7 +140,7 @@ func (vera *Vera) Renew() error {
 	// Renew all controllers
 	log.Println("Renewed")
 	for _, controller := range *vera.Controllers {
-		err = controller.GetSessionToken()
+		err = controller.Renew()
 		// Remove controller if error occured when renewing
 		if err != nil {
 			vera.removeDevice(controller.DeviceID)

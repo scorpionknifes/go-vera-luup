@@ -3,10 +3,23 @@ package vera
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
+
+// Renew renews controller by getting sessions
+// Kills polling and restart polling
+func (con *Controller) Renew() error {
+	con.Kill <- true
+	err := con.GetSessionToken()
+	if err != nil {
+		return err
+	}
+	con.Polling()
+	return nil
+}
 
 // GetSessionToken get relay session by using identity
 // Call GetSessionToken() to manually renew session token
@@ -109,7 +122,8 @@ func (con *Controller) Polling() {
 			default:
 				err := poll.checkStatus()
 				if err != nil {
-					time.Sleep(2 * time.Second)
+					log.Println("Retry in 5 sec")
+					time.Sleep(5 * time.Second)
 				}
 			}
 		}
@@ -129,6 +143,7 @@ func (poll *Polling) checkStatus() error {
 	}
 	// Set Required Headers
 	req.Header.Set("MMSSession", con.SessionToken)
+	log.Println("Started Polling")
 	r, err := pollClient.Do(req)
 	if err != nil {
 		return err
@@ -140,17 +155,20 @@ func (poll *Polling) checkStatus() error {
 	// Testing Polling data
 	//log.Println(string(bodyBytes))
 	if string(bodyBytes) == "" {
-		time.Sleep(2 * time.Second)
-		return nil
+		return err
 	}
+	log.Println("Polling Success")
 	// Decode SData and add to struct
 	sData := SData{}
 	err = json.Unmarshal(bodyBytes, &sData)
 	if err != nil {
+		log.Println("Marshal bad")
+		log.Println(err)
 		return err
 	}
 
 	poll.Controller.m.Lock()
+	defer poll.Controller.m.Unlock()
 	if sData.Full == 1 {
 		// Update all if data is full
 		con.SData = sData
@@ -197,7 +215,6 @@ func (poll *Polling) checkStatus() error {
 	poll.CurrentMinimumDelay = 2000
 	poll.LoadTime = sData.Loadtime
 	con.SData = sData
-	poll.Controller.m.Unlock()
 	return nil
 }
 
