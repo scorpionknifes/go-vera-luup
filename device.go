@@ -62,7 +62,7 @@ func (vera *Vera) GetDeviceRelay(deviceID string) (Controller, error) {
 		Updated:     make(chan bool),
 		m:           &sync.Mutex{},
 	}
-	err = controller.GetSessionToken()
+	err = controller.GetSessionToken(*vera)
 	if err != nil {
 		return Controller{}, err
 	}

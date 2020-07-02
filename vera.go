@@ -128,6 +128,7 @@ func (vera *Vera) Renew() error {
 	vera.m.Lock()
 	// Renew Identity using username and password
 	err := vera.GetIdentityToken()
+	log.Println("GetIdentity")
 	if err != nil {
 		return err
 	}
@@ -140,12 +141,14 @@ func (vera *Vera) Renew() error {
 	// Renew all controllers
 	log.Println("Renewed")
 	for _, controller := range *vera.Controllers {
-		err = controller.Renew()
+		err = controller.Renew(*vera)
 		// Remove controller if error occured when renewing
 		if err != nil {
+			log.Println("Removed " + controller.DeviceID)
 			vera.removeDevice(controller.DeviceID)
 		}
 	}
+	log.Println("Complete")
 	vera.m.Unlock()
 	return nil
 }
