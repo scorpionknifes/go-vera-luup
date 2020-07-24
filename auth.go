@@ -47,7 +47,7 @@ func (vera *Vera) GetSessionToken() error {
 	if err == nil {
 		return nil
 	}
-	//if error occured try using ServerAccountAlt
+	//if error occurred try using ServerAccountAlt
 	url = https + vera.Identity.ServerAccountAlt + sessionPath
 	return vera.GetSessionTokenURL(url)
 }

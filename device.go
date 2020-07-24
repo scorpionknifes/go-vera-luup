@@ -18,7 +18,7 @@ func (vera *Vera) GetAllDevices() error {
 	if err == nil {
 		return nil
 	}
-	// if error occured try using ServerAccountAlt
+	// if error occurred try using ServerAccountAlt
 	url = https + vera.Identity.ServerAccountAlt + accountPath + vera.AccountID + devicesPath
 	return vera.getAllDevicesURL(url)
 }

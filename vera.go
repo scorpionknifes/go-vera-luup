@@ -1,4 +1,4 @@
-// Package vera to remotely accesss Vera™ home controller UI7 and call Luup
+// Package vera to remotely access Vera™ home controller UI7 and call Luup
 // For more info about Luup http://wiki.micasaverde.com/index.php/Luup_Requests
 //
 // Example
@@ -141,7 +141,7 @@ func (vera *Vera) Renew() error {
 	log.Println("Renewed")
 	for _, controller := range *vera.Controllers {
 		err = controller.Renew()
-		// Remove controller if error occured when renewing
+		// Remove controller if error occurred when renewing
 		if err != nil {
 			vera.removeDevice(controller.DeviceID)
 		}
