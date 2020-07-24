@@ -1,7 +1,7 @@
 # Vera Luup Golang (In Progress)
 Use Golang to remotely login and make Luup calls to a Vera™ home controller UI7
 
-[![GoDoc](https://godoc.org/github.com/gogolfing/cbus?status.svg)](https://godoc.org/github.com/scorpionknifes/go-vera-luup)
+[![Go Report Card](https://goreportcard.com/badge/github.com/scorpionknifes/go-vera-luup)](https://goreportcard.com/report/github.com/scorpionknifes/go-vera-luup) [![GoDoc](https://godoc.org/github.com/gogolfing/cbus?status.svg)](https://godoc.org/github.com/scorpionknifes/go-vera-luup)
 
 ## Features
 - Remote access using Vera account

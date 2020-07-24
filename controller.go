@@ -11,9 +11,10 @@ import (
 
 // Renew renews controller by getting sessions
 // Kills polling and restart polling
-func (con *Controller) Renew() error {
+func (con *Controller) Renew(vera Vera) error {
 	con.Kill <- true
-	err := con.GetSessionToken()
+	con.Vera = &vera
+	err := con.GetSessionToken(vera)
 	if err != nil {
 		return err
 	}
@@ -23,8 +24,8 @@ func (con *Controller) Renew() error {
 
 // GetSessionToken get relay session by using identity
 // Call GetSessionToken() to manually renew session token
-func (con *Controller) GetSessionToken() error {
-	identity := con.Vera.Identity
+func (con *Controller) GetSessionToken(vera Vera) error {
+	identity := vera.Identity
 	//Get Url
 	url := https + con.ServerRelay + conSessionPath
 	//GET Request
@@ -162,6 +163,7 @@ func (poll *Polling) checkStatus() error {
 	sData := SData{}
 	err = json.Unmarshal(bodyBytes, &sData)
 	if err != nil {
+		log.Println(string(bodyBytes))
 		log.Println("Marshal bad")
 		log.Println(err)
 		return err
