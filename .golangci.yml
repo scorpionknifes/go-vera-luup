@@ -17,6 +17,7 @@ linters:
     - errcheck         # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases
     - exhaustive       # check exhaustiveness of enum switch statements
     - exportloopref    # checks for pointers to enclosing loop variables
+    - gci              # Gci control golang package import order and make it always deterministic.
     - gochecknoglobals # Checks that no globals are present in Go code
     - gochecknoinits   # Checks that no init functions are present in Go code
     - gocognit         # Computes and checks the cognitive complexity of functions
