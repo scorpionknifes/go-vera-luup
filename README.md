@@ -3,7 +3,9 @@
 Use Golang to remotely login and make Luup calls to a Vera™ home controller UI7
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c0725b4e5c9144a0bb6e128444cd365a)](https://app.codacy.com/gh/scorpionknifes/go-vera-luup?utm_source=github.com&utm_medium=referral&utm_content=scorpionknifes/go-vera-luup&utm_campaign=Badge_Grade)
-[![Go Report Card](https://goreportcard.com/badge/github.com/scorpionknifes/go-vera-luup)](https://goreportcard.com/report/github.com/scorpionknifes/go-vera-luup) [![GoDoc](https://godoc.org/github.com/gogolfing/cbus?status.svg)](https://godoc.org/github.com/scorpionknifes/go-vera-luup)
+[![Go Report Card](https://goreportcard.com/badge/github.com/scorpionknifes/go-vera-luup)](https://goreportcard.com/report/github.com/scorpionknifes/go-vera-luup) 
+[![GoDoc](https://godoc.org/github.com/gogolfing/cbus?status.svg)](https://godoc.org/github.com/scorpionknifes/go-vera-luup)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Features
 
