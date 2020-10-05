@@ -78,14 +78,10 @@ const (
 	retryTimer    = 5 * time.Second
 )
 
-var (
-	// client with 10 sec timeout.
-	client = &http.Client{Timeout: clientTimeout}
-
-	// pollClient http client without timeout for polling
-	// timeout is disable for polling using luup.
-	pollClient = &http.Client{}
-)
+// client with 10 sec timeout.
+func client() *http.Client {
+	return &http.Client{Timeout: clientTimeout}
+}
 
 // New Create new Vera object that identify using username & password
 // Login using Vera™ home controller UI7 account.

@@ -42,7 +42,7 @@ func (con *Controller) GetSessionToken(vera Vera) error {
 	req.Header.Set("MMSAuth", identity.Identity)
 	req.Header.Set("MMSAuthSig", identity.IdentitySignature)
 
-	r, err := client.Do(req)
+	r, err := client().Do(req)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (con *Controller) GetSData() error { //nolint:funlen
 	// Set Required Headers
 	req.Header.Set("MMSSession", con.SessionToken)
 
-	r, err := client.Do(req)
+	r, err := client().Do(req)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (con *Controller) Polling() {
 }
 
 // checkStatus calls GET request for polling, go channels used to signal when data has been changed.
-func (poll *Polling) checkStatus() error { //nolint:funlen,gocongnit
+func (poll *Polling) checkStatus() error { //nolint:funlen,gocognit
 	con := poll.Controller
 	// Get Url
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
@@ -168,7 +168,7 @@ func (poll *Polling) checkStatus() error { //nolint:funlen,gocongnit
 	req.Header.Set("MMSSession", con.SessionToken)
 	log.Println("Started Polling")
 
-	r, err := pollClient.Do(req)
+	r, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -345,7 +345,7 @@ func (con *Controller) callURL(url string) error {
 	// Set Required Headers
 	req.Header.Set("MMSSession", con.SessionToken)
 
-	r, err := client.Do(req)
+	r, err := client().Do(req)
 	if err != nil {
 		return err
 	}
@@ -365,7 +365,7 @@ func (con *Controller) callURLReturn(url string, target interface{}) (interface{
 	// Set Required Headers
 	req.Header.Set("MMSSession", con.SessionToken)
 
-	r, err := client.Do(req)
+	r, err := client().Do(req)
 	if err != nil {
 		return target, err
 	}

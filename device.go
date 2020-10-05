@@ -39,7 +39,7 @@ func (vera *Vera) getAllDevicesURL(url string) error {
 	// Set Required Headers
 	req.Header.Set("MMSSession", vera.SessionToken)
 
-	r, err := client.Do(req)
+	r, err := client().Do(req)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (vera *Vera) getDeviceInfoURL(url string) (DeviceInfo, error) {
 	// Set Required Headers
 	req.Header.Set("MMSSession", vera.SessionToken)
 
-	r, err := client.Do(req)
+	r, err := client().Do(req)
 	if err != nil {
 		return DeviceInfo{}, err
 	}
