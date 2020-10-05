@@ -168,7 +168,7 @@ type SData struct {
 type SDataDevice struct {
 	Name         string      `json:"name"`
 	Altid        string      `json:"altid"`
-	ID           json.Number `json:"id"` //SData when polling returns string instead of int
+	ID           json.Number `json:"id"` // SData when polling returns string instead of int
 	Category     json.Number `json:"category"`
 	Subcategory  json.Number `json:"subcategory"`
 	Room         json.Number `json:"room"`
