@@ -47,14 +47,14 @@ import (
 )
 
 const (
-	// https url
+	// https url.
 	https = "https://"
 
-	// remote url mios
+	// remote url mios.
 	remoteURL    = "us-autha11.mios.com"
-	passwordSeed = "oZ7QE6LcLJp6fiWzdqZc"
+	passwordSeed = "oZ7QE6LcLJp6fiWzdqZc" //nolint:gosec
 
-	// url paths
+	// url paths.
 	loginPath      = "/autha/auth/username/"
 	sessionPath    = "/info/session/token"
 	devicePath     = "/device/device/device/"
@@ -64,28 +64,33 @@ const (
 	conRelayPath   = "/relay/relay/relay/device/"
 	conDataRequest = "/port_3480/data_request"
 
-	// url params
+	// url params.
 	conSData  = "?id=sdata"
 	conDevice = "?id=action&DeviceNum="
 
-	// serviceId
+	// serviceId.
 	conSwitch   = "urn:upnp-org:serviceId:SwitchPower1"
 	conDoorLock = "urn:micasaverde-com:serviceId:DoorLock1"
+
+	// time.
+	renewTimer    = 23 * time.Hour
+	clientTimeout = 10 * time.Second
+	retryTimer    = 5 * time.Second
 )
 
 var (
-	// client with 10 sec timeout
-	client = &http.Client{Timeout: 10 * time.Second}
+	// client with 10 sec timeout.
+	client = &http.Client{Timeout: clientTimeout}
 
 	// pollClient http client without timeout for polling
-	// timeout is disable for polling using luup
+	// timeout is disable for polling using luup.
 	pollClient = &http.Client{}
 )
 
 // New Create new Vera object that identify using username & password
-// Login using Vera™ home controller UI7 account
+// Login using Vera™ home controller UI7 account.
 func New(username string, password string) Vera {
-	// Initialise Vera Class Object
+	// Initialize Vera Class Object
 	vera := Vera{
 		Username:    username,
 		Password:    password,
@@ -105,16 +110,16 @@ func New(username string, password string) Vera {
 
 	// Identity expires in 24 hr after login
 	// Loop 23 hrs to keep renewing Tokens
-	ticker := time.NewTicker(23 * time.Hour)
+	ticker := time.NewTicker(renewTimer)
+
 	go func() {
 		for {
-			select {
-			case <-ticker.C:
-				ticker = time.NewTicker(23 * time.Hour)
-				err = vera.Renew()
-				if err != nil {
-					log.Println(err)
-				}
+			<-ticker.C
+			ticker = time.NewTicker(renewTimer)
+
+			err = vera.Renew()
+			if err != nil {
+				log.Println(err)
 			}
 		}
 	}()
@@ -123,15 +128,18 @@ func New(username string, password string) Vera {
 }
 
 // Renew Used to renew identity of Vera struct
-// Call this Renew() to manually renew Vera Identity
+// Call this Renew() to manually renew Vera Identity.
 func (vera *Vera) Renew() error {
 	vera.m.Lock()
+
 	// Renew Identity using username and password
 	err := vera.GetIdentityToken()
-	log.Println("GetIdentity")
 	if err != nil {
 		return err
 	}
+
+	log.Println("GetIdentity")
+
 	// Renew SessionToken using Identity
 	err = vera.GetSessionToken()
 	if err != nil {
@@ -140,15 +148,22 @@ func (vera *Vera) Renew() error {
 
 	// Renew all controllers
 	log.Println("Renewed")
+
 	for _, controller := range *vera.Controllers {
+		// Remove controller if error when renewing
 		err = controller.Renew(*vera)
-		// Remove controller if error  when renewing
 		if err != nil {
 			log.Println("Removed " + controller.DeviceID)
-			vera.removeDevice(controller.DeviceID)
+
+			err = vera.removeDevice(controller.DeviceID)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
 	log.Println("Complete")
 	vera.m.Unlock()
+
 	return nil
 }

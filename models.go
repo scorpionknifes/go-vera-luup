@@ -6,7 +6,7 @@ import (
 )
 
 // Vera class struct hold info about one user
-// Vera object has reference to all Controller childs it creates
+// Vera object has reference to all Controller childs it creates.
 type Vera struct {
 	Username     string
 	Password     string
@@ -19,7 +19,7 @@ type Vera struct {
 }
 
 // Controller class struct hold info about one controller
-// Controller object has reference to parent Vera object
+// Controller object has reference to parent Vera object.
 type Controller struct {
 	Vera         *Vera
 	DeviceID     string
@@ -34,7 +34,7 @@ type Controller struct {
 }
 
 // Polling struct to poll Controller
-// Polling is a class that is only used for polling in goroutine
+// Polling is a class that is only used for polling in goroutine.
 type Polling struct {
 	LoadTime            int
 	DataVersion         int
@@ -42,21 +42,21 @@ type Polling struct {
 	Controller          *Controller
 }
 
-// Switch devices with ON/OFF from vera controller
+// Switch devices with ON/OFF from vera controller.
 type Switch struct {
 	ID     int    `json:"ID"`
 	Name   string `json:"Name"`
 	Status string `json:"Status"`
 }
 
-// Lock devices with lock/unlock from vera controller
+// Lock devices with lock/unlock from vera controller.
 type Lock struct {
 	ID     int    `json:"ID"`
 	Name   string `json:"Name"`
 	Locked string `json:"Locked"`
 }
 
-// IdentityJSON parse GetLoginToken
+// IdentityJSON parse GetLoginToken.
 type IdentityJSON struct {
 	Identity          string `json:"Identity"`
 	IdentitySignature string `json:"IdentitySignature"`
@@ -66,12 +66,12 @@ type IdentityJSON struct {
 	ServerAccountAlt  string `json:"Server_Account_Alt"`
 }
 
-// Devices list all devices linked to an account
+// Devices list all devices linked to an account.
 type Devices struct {
 	Devices []Device `json:"Devices"`
 }
 
-// Device represents on device (smart controler)
+// Device represents on device (smart controler).
 type Device struct {
 	PKDevice        string `json:"PK_Device"`
 	PKDeviceType    string `json:"PK_DeviceType"`
@@ -86,7 +86,7 @@ type Device struct {
 	Blocked         int    `json:"Blocked"`
 }
 
-// DeviceInfo for one device (smart controler)
+// DeviceInfo for one device (smart controler).
 type DeviceInfo struct {
 	PKDevice             string `json:"PK_Device"`
 	ServerRelay          string `json:"Server_Relay"`
@@ -125,7 +125,7 @@ type DeviceInfo struct {
 // SData struct to store SData from Luup Request on a device
 // SData struct is designed to be public and users can store data in alternative locations
 // json.Number is used cause Luup Request is not consistent when polling
-// e.g int is received when full=1 and string is received when full=0
+// e.g int is received when full=1 and string is received when full=0.
 type SData struct {
 	Full         int    `json:"full"`
 	Version      string `json:"version"`
@@ -164,7 +164,7 @@ type SData struct {
 	Comment     string          `json:"comment"`
 }
 
-// SDataDevice struct for devices in SData
+// SDataDevice struct for devices in SData.
 type SDataDevice struct {
 	Name         string      `json:"name"`
 	Altid        string      `json:"altid"`
@@ -185,7 +185,7 @@ type SDataDevice struct {
 	Locked       string      `json:"locked,omitempty"`
 }
 
-// SDataCategory struct for category in SData
+// SDataCategory struct for category in SData.
 type SDataCategory struct {
 	Name string `json:"name"`
 	ID   int    `json:"id"`

@@ -10,10 +10,6 @@ import (
 	"time"
 )
 
-const (
-	retryTimer = 5 * time.Second
-)
-
 // Renew renews controller by getting sessions
 // Kills polling and restart polling.
 func (con *Controller) Renew(vera Vera) error {
@@ -65,7 +61,7 @@ func (con *Controller) GetSessionToken(vera Vera) error {
 
 // GetSData Get SData from Hub through Relay Server aka all info
 // Info is stored back inside vera. This should be only called to get new SData.
-func (con *Controller) GetSData() error {
+func (con *Controller) GetSData() error { //nolint:funlen
 	// Get Url
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID + conDataRequest + conSData
 	// GET Request
@@ -157,7 +153,7 @@ func (con *Controller) Polling() {
 }
 
 // checkStatus calls GET request for polling, go channels used to signal when data has been changed.
-func (poll *Polling) checkStatus() error {
+func (poll *Polling) checkStatus() error { //nolint:funlen,gocongnit
 	con := poll.Controller
 	// Get Url
 	url := https + con.ServerRelay + conRelayPath + con.DeviceID
@@ -204,7 +200,7 @@ func (poll *Polling) checkStatus() error {
 	poll.Controller.m.Lock()
 	defer poll.Controller.m.Unlock()
 
-	if sData.Full == 1 {
+	if sData.Full == 1 { //nolint:nestif
 		// Update all if data is full
 		con.SData = sData
 	} else {
